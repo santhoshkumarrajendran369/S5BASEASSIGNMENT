@@ -154,3 +154,4 @@ Your Name - [Santhoshkumar](mailto:santhoshkumar3ram@gmail.com)
 
 Project Link: [https://github.com/santhoshkumarrajendran369/S5BASEASSIGNMENT](https://github.com/santhoshkumarrajendran369/S5BASEASSIGNMENT)
 
+[![ML Pipeline](https://github.com/santhoshkumarrajendran369/S5BASEASSIGNMENT/actions/workflows/ml-pipeline.yml/badge.svg)](https://github.com/santhoshkumarrajendran369/S5BASEASSIGNMENT/actions/workflows/ml-pipeline.yml)
