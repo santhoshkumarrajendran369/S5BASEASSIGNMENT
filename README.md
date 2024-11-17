@@ -150,7 +150,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📧 Contact
 
-Your Name - [santhoshkumar3ram@gmail.com](mailto:santhoshkumar3ram@gmail.com)
+Your Name - [Santhoshkumar](mailto:santhoshkumar3ram@gmail.com)
 
 Project Link: [https://github.com/santhoshkumarrajendran369/S5BASEASSIGNMENT](https://github.com/santhoshkumarrajendran369/S5BASEASSIGNMENT)
 
