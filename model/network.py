@@ -1,63 +1,65 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 class SimpleCNN(nn.Module):
     def __init__(self):
         super(SimpleCNN, self).__init__()
-        # First conv block with more filters
-        self.conv1 = nn.Conv2d(1, 16, kernel_size=3, padding=1)
-        self.bn1 = nn.BatchNorm2d(16)
+        # First conv block with efficient filters
+        self.conv1 = nn.Conv2d(1, 8, kernel_size=3, padding=1)
+        self.bn1 = nn.BatchNorm2d(8)
         
-        # Second conv block
-        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, padding=1)
-        self.bn2 = nn.BatchNorm2d(32)
+        # Second conv block with slight increase
+        self.conv2 = nn.Conv2d(8, 16, kernel_size=3, padding=1)
+        self.bn2 = nn.BatchNorm2d(16)
         
-        # Third conv block with residual connection
-        self.conv3a = nn.Conv2d(32, 32, kernel_size=3, padding=1)
-        self.bn3a = nn.BatchNorm2d(32)
-        self.conv3b = nn.Conv2d(32, 32, kernel_size=1)  # 1x1 conv for channel attention
-        self.bn3b = nn.BatchNorm2d(32)
+        # Efficient attention mechanism
+        self.se1 = nn.Sequential(
+            nn.AdaptiveAvgPool2d(1),
+            nn.Conv2d(16, 4, 1),
+            nn.ReLU(),
+            nn.Conv2d(4, 16, 1),
+            nn.Sigmoid()
+        )
+        
+        # Third conv block
+        self.conv3 = nn.Conv2d(16, 20, kernel_size=3, padding=1)
+        self.bn3 = nn.BatchNorm2d(20)
         
         # Fully connected layers
-        self.fc1 = nn.Linear(32 * 3 * 3, 64)  # Reduced to stay under parameter limit
-        self.fc2 = nn.Linear(64, 10)
+        self.fc1 = nn.Linear(20 * 3 * 3, 80)
+        self.fc2 = nn.Linear(80, 10)
         
-        # Other layers
         self.pool = nn.MaxPool2d(2, 2)
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.3)  # Increased dropout for better regularization
-        self.dropout2 = nn.Dropout(0.2)
+        self.dropout = nn.Dropout(0.1)
 
     def forward(self, x):
-        # First block
+        # First block with strong feature extraction
         x = self.conv1(x)
         x = self.bn1(x)
-        x = self.relu(x)
+        x = F.leaky_relu(x, 0.1)
         x = self.pool(x)
         
-        # Second block
+        # Second block with attention
         x = self.conv2(x)
         x = self.bn2(x)
-        x = self.relu(x)
-        x = self.dropout2(x)
+        x = F.leaky_relu(x, 0.1)
+        
+        # Apply squeeze-excitation
+        att = self.se1(x)
+        x = x * att
         x = self.pool(x)
         
-        # Third block with attention and residual
-        identity = x
-        x = self.conv3a(x)
-        x = self.bn3a(x)
-        x = self.relu(x)
-        attention = self.conv3b(x)
-        attention = self.bn3b(attention)
-        attention = torch.sigmoid(attention)  # Channel attention
-        x = x * attention + identity  # Attention-weighted residual
-        x = self.dropout2(x)
+        # Third block
+        x = self.conv3(x)
+        x = self.bn3(x)
+        x = F.leaky_relu(x, 0.1)
         x = self.pool(x)
         
-        # Fully connected
-        x = x.view(-1, 32 * 3 * 3)
+        # Fully connected with minimal dropout
+        x = x.view(-1, 20 * 3 * 3)
         x = self.fc1(x)
-        x = self.relu(x)
+        x = F.leaky_relu(x, 0.1)
         x = self.dropout(x)
         x = self.fc2(x)
         return x 
